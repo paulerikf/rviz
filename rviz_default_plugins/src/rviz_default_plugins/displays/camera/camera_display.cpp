@@ -32,6 +32,7 @@
 
 #include <memory>
 #include <string>
+#include <sstream>
 
 #include <OgreManualObject.h>
 #include <OgreMaterialManager.h>
@@ -285,6 +286,17 @@ void CameraDisplay::createCameraInfoSubscription()
     camera_info_topic =
       camera_info_topic.substr(0, camera_info_topic.rfind("/") + 1) + "camera_info";
 
+    rclcpp::SubscriptionOptions sub_opts;
+    sub_opts.event_callbacks.message_lost_callback =
+      [&](rclcpp::QOSMessageLostInfo & info)
+      {
+        std::stringstream sstm;
+        sstm << "Some messages were lost:\n>\tNumber of new lost messages: "
+             << info.total_count_change << " \n>\tTotal number of messages lost: "
+             << info.total_count;
+        setStatus(StatusLevel::Warn, CAM_INFO_STATUS, QString(sstm.str().c_str()));
+      };
+
     caminfo_sub_ = rviz_ros_node_.lock()->get_raw_node()->
       template create_subscription<sensor_msgs::msg::CameraInfo>(
       camera_info_topic,
@@ -293,7 +305,8 @@ void CameraDisplay::createCameraInfoSubscription()
         std::unique_lock<std::mutex> lock(caminfo_mutex_);
         current_caminfo_ = msg;
         new_caminfo_ = true;
-      });
+      }, sub_opts);
+    
     setStatus(StatusLevel::Ok, CAM_INFO_STATUS, "OK");
   } catch (rclcpp::exceptions::InvalidTopicNameError & e) {
     setStatus(StatusLevel::Error, CAM_INFO_STATUS, QString("Error subscribing: ") + e.what());
