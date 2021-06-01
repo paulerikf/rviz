@@ -57,8 +57,8 @@ configure_file(src/rviz_common/env_config.hpp ${ENV_CONFIG_HPP} @ONLY)
 
 # TODO(jsquare): Adopt parameters given here
 set(ENV_CONFIG_CPP ${CMAKE_CURRENT_BINARY_DIR}/src/rviz_common/env_config.cpp)
-set(RVIZ_VERSION "Alpha")
-set(ROS_DISTRO "ROS 2.0")
+set(RVIZ_VERSION "8.6.0")
+set(ROS_DISTRO "ROS 2")
 set(OGRE_PLUGIN_PATH "rviz_ogre_vendor")
 configure_file(src/rviz_common/env_config.cpp.in ${ENV_CONFIG_CPP} @ONLY)
 
